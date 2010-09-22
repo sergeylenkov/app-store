@@ -7,8 +7,13 @@ Ruby script for downloading daily reports from iTunes Connect
 - **Usage**: downloader [options]
 
     -v, --verbose                    Verbose output
+
     -u, --user UID                   Your Apple ID
+
     -p, --password PASSWORD          Your password
+
     -d, --date DATE                  Date for downloading report in format mm/dd/yyyy
+
     -o, --output DIR                 Directory to downlaod report
+
     -h, --help                       Display this screen

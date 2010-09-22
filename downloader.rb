@@ -218,5 +218,5 @@ class Downloader
     end
 end
 
-parser = Downloader.new(ARGV)
-parser.download
+downloader = Downloader.new(ARGV)
+downloader.download
