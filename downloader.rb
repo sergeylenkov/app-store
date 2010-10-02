@@ -81,7 +81,7 @@ class Downloader
         response.response.get_fields('Set-Cookie').each do |cookie|
             cookies << cookie.split(';')[0]
         end
-
+        puts action
         headers = {
           'Cookie' => cookies.join('; '),
           'User-Agent' => 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20'
@@ -101,7 +101,8 @@ class Downloader
 
         headers = {
             'Cookie' => cookies.join('; '),
-            'User-Agent' => 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20'
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20',
+            'Referer' => 'https://itunesconnect.apple.com%s' % action
         }
 
         response, body = http.get2('/', headers)
@@ -109,10 +110,49 @@ class Downloader
         response.response.get_fields('Set-Cookie').each do |cookie|
             cookies << cookie.split(';')[0]
         end
-        
+
         if @options[:verbose]
             puts 'Downloading report for ' + @options[:date];
         end
+        
+        http = Net::HTTP.new('reportingitc.apple.com', 443)
+        http.read_timeout = 120
+        http.open_timeout = 120
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+        headers = {
+            'Cookie' => cookies.join('; '),
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20'
+        }
+
+        response, body = http.get2('/vendor_default.faces', headers)
+        
+        viewState = /"javax.faces.ViewState" value="(.*?)"/.match(body)[1]
+        vendorName = /defaultVendorPage:j_id_jsp_[0-9]*_2/.match(body).to_s
+        ajaxName = /j_id_jsp_[0-9]*_0/.match(body).to_s
+        
+        if @options[:verbose]
+            puts 'viewState: ' + viewState
+            puts 'ajaxName: ' + ajaxName
+            puts 'vendorName: ' + vendorName
+        end
+        
+        headers = {
+          'Cookie' => cookies.join('; '),
+          'User-Agent' => 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20'
+        }
+
+        params = ['AJAXREQUEST=%s' % CGI::escape(ajaxName), 
+                  'defaultVendorPage=defaultVendorPage', 
+                  'javax.faces.ViewState=%s' % CGI::escape(viewState),
+                  '%s=%s' % [CGI::escape(vendorName), CGI::escape(vendorName)]]
+
+        if @options[:verbose]
+            puts params
+        end
+
+        response, body = http.post('/vendor_default.faces', params.join('&'), headers)
         
         http = Net::HTTP.new('reportingitc.apple.com', 443)
         http.read_timeout = 120
@@ -129,8 +169,8 @@ class Downloader
 
         viewState = /"javax.faces.ViewState" value="(.*?)"/.match(body)[1]
         ajaxName = /theForm:j_id_jsp_[0-9]*_2/.match(body).to_s
-        dailyName = /theForm:j_id_jsp_[0-9]*_21/.match(body).to_s
-        selectName = /theForm:j_id_jsp_[0-9]*_30/.match(body).to_s
+        dailyName = /theForm:j_id_jsp_[0-9]*_23/.match(body).to_s
+        selectName = /theForm:j_id_jsp_[0-9]*_32/.match(body).to_s
 
         if @options[:verbose]
             puts 'viewState: ' + viewState
@@ -201,7 +241,7 @@ class Downloader
         end
 
         response, body = http.post('/sales.faces', params.join('&'), headers)
-        
+        #puts body
         file = response.response['content-disposition'].split('=')[1]
 
         if @options[:dir]
