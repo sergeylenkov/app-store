@@ -170,7 +170,7 @@ class Downloader
         viewState = /"javax.faces.ViewState" value="(.*?)"/.match(body)[1]
         ajaxName = /theForm:j_id_jsp_[0-9]*_2/.match(body).to_s
         dailyName = /theForm:j_id_jsp_[0-9]*_23/.match(body).to_s
-        selectName = /theForm:j_id_jsp_[0-9]*_32/.match(body).to_s
+        selectName = /theForm:j_id_jsp_[0-9]*_31/.match(body).to_s
 
         if @options[:verbose]
             puts 'viewState: ' + viewState
@@ -188,40 +188,49 @@ class Downloader
                   'theForm=theForm', 
                   '%s=notnormal' % CGI::escape('theForm:xyz'), 
                   '%s=Y' % CGI::escape('theForm:vendorType'),
+                  '%s=Y' % CGI::escape('theForm:vendorType'),
+                  '%s=false' % CGI::escape('theForm:wklyBool'),
+                  '%s=A' % CGI::escape('theForm:optInVar'),
+                  '%s=false' % CGI::escape('theForm:optInVarRender'),
                   'javax.faces.ViewState=%s' % CGI::escape(viewState),
                   '%s=%s' % [CGI::escape(dailyName), CGI::escape(dailyName)],
                   '%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
-                  '%s=%s' % [CGI::escape('theForm:weekPickerSourceSelectElement'), CGI::escape('09/12/2010')]]
+                  '%s=%s' % [CGI::escape('theForm:weekPickerSourceSelectElement'), CGI::escape('03/06/2011')]]
 
         if @options[:verbose]
             puts params
+            puts ''
         end
 
         response, body = http.post('/sales.faces', params.join('&'), headers)
+        
+        viewState = /"javax.faces.ViewState" value="(.*?)"/.match(body)[1]
+        
+        params = ['AJAXREQUEST=%s' % CGI::escape(ajaxName), 
+                  'theForm=theForm', 
+                  '%s=notnormal' % CGI::escape('theForm:xyz'), 
+                  '%s=Y' % CGI::escape('theForm:vendorType'),
+                  '%s=false' % CGI::escape('theForm:wklyBool'),
+                  '%s=A' % CGI::escape('theForm:optInVar'),
+                  '%s=false' % CGI::escape('theForm:optInVarRender'),
+                  'javax.faces.ViewState=%s' % CGI::escape(viewState),
+                  '%s=%s' % [CGI::escape(selectName), CGI::escape(selectName)],
+                  '%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
+                  '%s=%s' % [CGI::escape('theForm:weekPickerSourceSelectElement'), CGI::escape('03/06/2011')]]
 
+        if @options[:verbose]
+            puts params
+            puts ''
+        end
+
+        response, body = http.post('/sales.faces', params.join('&'), headers)
+        
         viewState = /"javax.faces.ViewState" value="(.*?)"/.match(body)[1]
         
         if @options[:verbose]
             puts 'viewState: ' + viewState
         end
 
-        params = ['AJAXREQUEST=%s' % CGI::escape(ajaxName), 
-                  'theForm=theForm', 
-                  '%s=notnormal' % CGI::escape('theForm:xyz'), 
-                  '%s=Y' % CGI::escape('theForm:vendorType'),
-                  'javax.faces.ViewState=%s' % CGI::escape(viewState),
-                  '%s=%s' % [CGI::escape(selectName), CGI::escape(selectName)],
-                  '%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
-                  '%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
-                  '%s=%s' % [CGI::escape('theForm:weekPickerSourceSelectElement'), CGI::escape('09/12/2010')]]
-
-        if @options[:verbose]
-            puts params
-        end
-
-        response, body = http.post('/sales.faces', params.join('&'), headers)
-
-        viewState = /"javax.faces.ViewState" value="(.*?)"/.match(body)[1]
         
         if @options[:verbose]
             puts 'viewState: ' + viewState
@@ -230,18 +239,22 @@ class Downloader
         params = ['theForm=theForm', 
                   '%s=notnormal' % CGI::escape('theForm:xyz'), 
                   '%s=Y' % CGI::escape('theForm:vendorType'),
+                  '%s=false' % CGI::escape('theForm:wklyBool'),
+                  '%s=A' % CGI::escape('theForm:optInVar'),
+                  '%s=false' % CGI::escape('theForm:optInVarRender'),
                   'javax.faces.ViewState=%s' % CGI::escape(viewState),
                   '%s=%s' % [CGI::escape('theForm:downloadLabel2'), CGI::escape('theForm:downloadLabel2')],
                   '%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
-                  '%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
-                  '%s=%s' % [CGI::escape('theForm:weekPickerSourceSelectElement'), CGI::escape('09/12/2010')]]
+                  #'%s=%s' % [CGI::escape('theForm:datePickerSourceSelectElementSales'), CGI::escape(@options[:date])],
+                  '%s=%s' % [CGI::escape('theForm:weekPickerSourceSelectElement'), CGI::escape('03/06/2011')]]
 
         if @options[:verbose]
             puts params
+            puts ''
         end
 
         response, body = http.post('/sales.faces', params.join('&'), headers)
-        #puts body
+
         file = response.response['content-disposition'].split('=')[1]
 
         if @options[:dir]
