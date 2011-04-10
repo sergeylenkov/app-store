@@ -19,6 +19,7 @@ Ruby scripts for downloading daily reports from iTunes Connect and getting revie
     -h, --help                       Display this screen
     
 - **Usage:** reviews [options]
+
     -v, --verbose                    Verbose output
     
     -a, --application ID             Application ID
