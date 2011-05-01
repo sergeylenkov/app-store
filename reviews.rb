@@ -155,7 +155,7 @@ class ReviewsParser
         end
         
         page = download_reviews(@options[:application], key, i + 1)
-        items = page.split('<div class="customer-review">')
+        items = page.split('class="customer-review">')
 
         items.each do |item|
           clear_item = ''
@@ -174,12 +174,13 @@ class ReviewsParser
             title = /<span class="customerReviewTitle">(.*?)<\/span>/.match(item)[1]
             text = /<p class="content.*?">(.*?)<\/p>/.match(item)[1]
             name = /<a href='.*' class="reviewer">(.*?)<\/a>/.match(item)[1]
-            rating = /<div class='rating' role='.*?' aria-label='.*?([0-9]).*?'>/.match(item)[1]
-                    
+            #rating = /<div class='rating' role='.*?' aria-label='.*?([0-9]).*?'>/.match(item)[1]
+            rating = item.scan('"rating-star"').size
+
             temp = /<span class="user-info">.*?<\/a>(.*?)<\/span>/.match(item)[1]
 
-            fields = temp.split('-')
-            version = fields[1].sub('Version', '').strip
+            fields = temp.split("-")
+            version = /([0-9].*)/.match(fields[1])[1]
                     
             fields.delete_at(0)
             fields.delete_at(0)
@@ -190,12 +191,14 @@ class ReviewsParser
               date = Time.now
             end
           
-            reviews << '"%s";"%s";"%s";%s;%d;%s' % [title, name, text, date.to_s, rating, version]
+            reviews << '"%s";"%s";"%s";%s;%d;%s;"%s"' % [title, name, text, date.to_s, rating, version, value]
             
             if @options[:verbose]
               puts title + ' at ' + date.to_s
               puts text
+              puts rating
               puts ''
+              #puts item
             end
           rescue => error
             if @options[:verbose]
@@ -210,21 +213,25 @@ class ReviewsParser
       end
       
     end
-        
-    if @options[:dir]
-      file = Pathname.new(@options[:file])
-    else
-      file = Pathname.new(Time.now.to_s + '.txt')
-    end
-        
-    File.open(file, 'w') do |f|        
-      reviews.each do |review|
-        f.write(review + "\r\n")
+    
+    if reviews.count > 0    
+      if @options[:dir]
+        file = Pathname.new(@options[:file])
+      else
+        file = Pathname.new(Time.now.to_s + '.txt')
       end
-    end
         
-    if @options[:verbose]
-      puts 'Reviews saved to ' + file
+      File.open(file, 'w') do |f|        
+        reviews.each do |review|
+          f.write(review + "\r\n")
+        end
+      end
+        
+      if @options[:verbose]
+        puts "Reviews saved to " + file
+      end
+    else
+      puts "No reviews"
     end
   end
 
