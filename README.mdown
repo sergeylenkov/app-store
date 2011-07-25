@@ -1,8 +1,9 @@
 Ruby scripts for downloading daily reports from iTunes Connect and getting reviews from App Store
 
-- **Requires**: hpricot
+- **Requirements**:
 
-    $sudo gem install hpricot
+    $ gem install bundler
+    $ bundle install
 
 - **Usage**: downloader [options]
 
