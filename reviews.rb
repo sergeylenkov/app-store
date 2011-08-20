@@ -142,7 +142,7 @@ class ReviewsParser
       }
         
       response, body = http.get2('/WebObjects/MZStore.woa/wa/customerReviews?update=1&id=%s&displayable-kind=11' % @options[:application], headers)
-        
+
       pages = Integer(/total-number-of-pages='(.*)?'/.match(body)[1])
       
       if @options[:verbose]
@@ -198,7 +198,6 @@ class ReviewsParser
               puts text
               puts rating
               puts ''
-              #puts item
             end
           rescue => error
             if @options[:verbose]
