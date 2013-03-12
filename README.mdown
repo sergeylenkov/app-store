@@ -7,11 +7,11 @@ Ruby scripts for downloading daily reports from iTunes Connect and getting revie
 
 - **Usage**: downloader [options]
 
-    -v, --verbose                    Verbose output
-
     -u, --user UID                   Your Apple ID
 
     -p, --password PASSWORD          Your password
+
+	-v, --vendor                     YOur Vendor ID
 
     -d, --date DATE                  Date for downloading report in format mm/dd/yyyy
 
@@ -20,8 +20,6 @@ Ruby scripts for downloading daily reports from iTunes Connect and getting revie
     -h, --help                       Display this screen
     
 - **Usage:** reviews [options]
-
-    -v, --verbose                    Verbose output
     
     -a, --application ID             Application ID
     
