@@ -194,7 +194,7 @@ class ReviewsParser
       end
         
       if @options[:verbose]
-        puts "Reviews saved to " + file
+        puts "Reviews saved to #{file}"
       end
     else
       puts "No reviews"
